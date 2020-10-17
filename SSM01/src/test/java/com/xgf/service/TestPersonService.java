@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -48,4 +49,19 @@ public class TestPersonService {
         List<Person> list = personService.findAll();
         log.info("allPerson："+list+"");
     }
+
+    //模拟看是否发生事务回滚 批量保存（保存的过程中有一个地方抛出异常，就应该全部回滚）
+    @Test
+    public void test04(){
+        List<Person> personList = new ArrayList<>();
+        personList.add(new Person(null,"savePerson_001",100.00));
+        personList.add(new Person(null,"savePerson_002",200.00));
+        //抛出1/0异常
+        System.out.println(1/0);
+        personList.add(new Person(null,"savePerson_003",300.00));
+
+        int code = personService.savePersonList(personList);
+        log.info("插入" + code + "条person数据");
+    }
+
 }

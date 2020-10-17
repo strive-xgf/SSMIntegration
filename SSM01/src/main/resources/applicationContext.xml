@@ -13,6 +13,12 @@
    	   http://www.springframework.org/schema/tx
 	   http://www.springframework.org/schema/tx/spring-tx.xsd">
 
+    <!--   设置扫描包，包下设置注解@Service @Repository @Component @AutoWried-->
+    <context:component-scan base-package="com.xgf">
+        <!--    由于springmvc的controller是由springmvc来扫描，需要将controller排除在外-->
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
     <!-- 引入c3p0的属性文件(里面是连接数据库四大信息键值对)，在配置中通过占位使用 -->
     <context:property-placeholder location="classpath:c3p0.properties" />
 
@@ -72,11 +78,42 @@
         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
     </bean>
 
-    <!--   设置扫描包，包下设置注解@Service @Repository @Component @AutoWried-->
-    <context:component-scan base-package="com.xgf">
-        <!--    由于springmvc的controller是由springmvc来扫描，需要将controller排除在外-->
-        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
-    </context:component-scan>
+    <!--配置Spring框架的 声明式事务管理-->
+    <!--配置事务管理器  DataSourceTransactionManager是spring给我们的管理事务的对象，
+            这个对象要用到连接池，用完需要将连接放回连接池 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+
+    <!-- 配置通知 -->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <!-- spring提供的tx标签对方法进行分类 -->
+        <tx:attributes>
+            <!-- 方法：所有以find开头的都不进行事务管理（以后查询都以find开头） -->
+            <tx:method name="find*" read-only="true"/>
+            <!-- 其他的都用默认的DEFAULT，进行事务管理
+                    （DEFAULT是默认的事务隔离级别，mysql用什么事务隔离级别我们也用） -->
+            <tx:method name="delete*" isolation="DEFAULT"/>
+            <tx:method name="save*" isolation="DEFAULT"/>
+            <tx:method name="update*" isolation="DEFAULT"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <!-- 配置AOP实现增强，配置aop事务 -->
+    <aop:config>
+        <!-- expression表达式的值，按照你的路径配置
+            * com.xgf.service.impl.*ServiceImpl.*(..))
+                第一个* 是返回值通配符
+                然后是包的路径，*ServiceImpl表示配置的所有满足类名+ServiceImpl后缀的且在com.xgf.service.impl目录下的
+                *(..) ： *表示所有方法 (..)表示匹配所有参数
+        -->
+        <aop:pointcut id="service" expression="execution(* com.xgf.service.impl.*ServiceImpl.*(..))"/>
+        <!-- 切入点 一个增强通知以及一个说明在何处增强的切入点  -->
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="service"/>
+    </aop:config>
+
+
+
 
 
 </beans>

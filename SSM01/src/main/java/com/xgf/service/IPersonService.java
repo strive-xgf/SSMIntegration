@@ -9,4 +9,7 @@ public interface IPersonService {
     List<Person> findAll();
     //新增一个person
     int savePerson(Person person);
+
+    //增加多个person
+    int savePersonList(List<Person> personList);
 }

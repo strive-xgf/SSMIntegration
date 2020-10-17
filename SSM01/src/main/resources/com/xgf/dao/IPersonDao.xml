@@ -11,5 +11,19 @@
     <insert id="savePerson" parameterType="person">
         insert into person (name,money)values(#{name},#{money})
     </insert>
+
+    <!-- 插入多条数据，进行事务测试 -->
+    <!-- 使用foreach元素，插入多条用户信息 -->
+    <!-- 插入一条：insert into person (name,money)values(#{name},#{money})
+            这里接收的参数是personList，参数类型是java.util.List
+            循环遍历要用 collection="list"
+     -->
+    <insert id="savePersonList" parameterType="java.util.List">
+
+        insert into person(name,money)values
+        <foreach item="item" index="index" separator="," collection="list">
+            (#{item.name},#{item.money})
+        </foreach>
+    </insert>
 </mapper>
 

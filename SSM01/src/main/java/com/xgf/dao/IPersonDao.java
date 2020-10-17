@@ -9,4 +9,6 @@ public interface IPersonDao {
     List<Person> findAll();
     //新增一个person
     int savePerson(Person person);
+    //保存多个person
+    int savePersonList(List<Person> personList);
 }

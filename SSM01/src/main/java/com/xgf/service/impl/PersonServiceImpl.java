@@ -25,4 +25,10 @@ public class PersonServiceImpl implements IPersonService {
         int code = personDao.savePerson(person);
         return code;
     }
+
+    @Override
+    public int savePersonList(List<Person> personList) {
+        int code = personDao.savePersonList(personList);
+        return code;
+    }
 }

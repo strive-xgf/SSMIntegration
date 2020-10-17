@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+    <!-- 定义别名  全名：com.xgf.bean.Person  可以简写为别名：person-->
+    <typeAliases>
+        <package name="com.xgf.bean"/>
+    </typeAliases>
+    <environments default="mysql">
+        <environment id="mysql">
+            <transactionManager type="JDBC"/>
+            <!-- MyBatis自带连接池 -->
+            <dataSource type="POOLED">
+                <property name="driver" value="com.mysql.jdbc.Driver"/>
+                <property name="url" value="jdbc:mysql://localhost:3306/ssm"/>
+                <property name="username" value="root"/>
+                <property name="password" value="861221293"/>
+            </dataSource>
+        </environment>
+    </environments>
+    <!-- 核心 配置文件扫描到映射文件-->
+    <mappers>
+        <package name="com.xgf.dao"/>
+    </mappers>
+</configuration>
+

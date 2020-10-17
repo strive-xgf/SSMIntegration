@@ -7,7 +7,8 @@ import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.List;
 
-@Repository
+@Repository //整合MyBatis,就不需要dao的实现类了，由映射文件完成
+@Deprecated  //添加注解@Deprecated表示这个类过时
 public class PersonDaoImpl implements IPersonDao {
     @Override
     public List<Person> findAll() {

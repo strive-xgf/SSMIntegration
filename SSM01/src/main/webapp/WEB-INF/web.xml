@@ -44,11 +44,11 @@
     <servlet-name>DispatcherServlet</servlet-name>
     <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
     <!--加载springmvc.xml配置文件-->
-    <!--<init-param>
-      &lt;!&ndash; 整合SpringMVC，需要加载springmvc核心配置文件 &ndash;&gt;
+    <init-param>
+      <!-- 整合SpringMVC，需要加载springmvc核心配置文件 -->
       <param-name>contextConfigLocation</param-name>
       <param-value>classpath:springmvc.xml</param-value>
-    </init-param>-->
+    </init-param>
     <!--数字越大优先级越低， 数字为1，启动服务器，立即创建该servlet -->
     <load-on-startup>1</load-on-startup>
   </servlet>

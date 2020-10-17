@@ -1,8 +1,9 @@
 package com.xgf.dao;
 import java.util.List;
 import com.xgf.bean.Person;
+import org.springframework.stereotype.Repository;
 
-
+@Repository
 public interface IPersonDao {
     //查询所有用户
     List<Person> findAll();

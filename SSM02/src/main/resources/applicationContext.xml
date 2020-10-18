@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	   http://www.springframework.org/schema/beans/spring-beans.xsd
+	   http://www.springframework.org/schema/context
+	   http://www.springframework.org/schema/context/spring-context.xsd
+	   http://www.springframework.org/schema/aop
+	   http://www.springframework.org/schema/aop/spring-aop.xsd
+   	   http://www.springframework.org/schema/tx
+	   http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!--   设置扫描包，包下设置注解@Service @Repository @Component @AutoWried-->
+    <context:component-scan base-package="com.xgf">
+        <!--    由于springmvc的controller是由springmvc来扫描，需要将controller排除在外-->
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+    <!-- 引入c3p0的属性文件(里面是连接数据库四大信息键值对)，在配置中通过占位使用 -->
+    <context:property-placeholder location="classpath:c3p0.properties" />
+
+    <!-- 连接数据库的四大基本信息-->
+    <!-- 数据库连接池c3p0 -->
+    <!-- 用c3p0数据源配置连接池，里面有连接池  ComboPooledDataSource数据库连接池 -->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <!-- 连接池4大组件 -->
+        <property name="driverClass" value="${c3p0.driverClass}"/>
+        <property name="jdbcUrl" value="${c3p0.jdbcUrl}"/>
+        <property name="user" value="${c3p0.user}"/>
+        <property name="password" value="${c3p0.password}"/>
+
+        <!--初始化连接数  取值要在minPoolSize和maxPoolSize之间（可包含，闭区间） 默认值：3 -->
+        <property name="initialPoolSize" value="${c3p0.initialPoolSize}"/>
+        <!-- 最大连接数 （连接池中的连接数不能超过maxPoolSize最大连接数） 默认值：15-->
+        <property name="maxPoolSize" value="${c3p0.maxPoolSize}"/>
+        <!--最小连接数  默认值：3  -->
+        <property name="minPoolSize" value="${c3p0.minPoolSize}"/>
+        <!-- c3p0连接池中数据连接不够时（无空闲连接可用）,一次增长的个数（增长不能超过maxPoolSize最大连接个数） 默认值：3 -->
+        <property name="acquireIncrement" value="${c3p0.acquireIncrement}"/>
+        <!-- 连接的最大空闲时间，如果超过这个时间还没有被使用，就断开这个连接（设置为0或负数，就永远都不会被断开） 单位：秒  默认值 ：0 -->
+        <property name="maxIdleTime" value="${c3p0.maxIdleTime}"/>
+
+        <!-- 从数据库获取新连接失败后重复尝试的次数。小于等于0表示无限次  默认值: 30-->
+        <property name="acquireRetryAttempts" value="${c3p0.acquireRetryAttempts}"/>
+        <!-- 两次连接的中间间隔时间（重新尝试的时间间隔）  单位：毫秒  默认值：1000 -->
+        <property name="acquireRetryDelay" value="${c3p0.acquireRetryDelay}"/>
+        <!-- 连接关闭时，是否将所有未提交的操作进行事务回滚  默认值：false -->
+        <property name="autoCommitOnClose" value="${c3p0.autoCommitOnClose}"/>
+        <!-- 当连接池用完时,客户端调用getConnection()后等待获取新连接的时间  单位：毫秒  默认值：0
+                如果值设为 0，将无限期等待，直到有空闲连接。  否则按照设置的值，超时将抛出SQLException异常
+                时间设置过小时会出现连接超时，这样会抛出SQLException异常，设置时间时需要小心，按照实际情况设置适当的值-->
+        <property name="checkoutTimeout" value="${c3p0.checkoutTimeout}"/>
+        <!-- 每隔多少秒检查所有连接池中的空闲连接  单位：秒   默认值：0 -->
+        <property name="idleConnectionTestPeriod" value="${c3p0.idleConnectionTestPeriod}"/>
+
+        <!-- 配置PreparedStatement缓存，设置连接池为数据源缓存的PreparedStatement的总数
+                为0的时候不缓存，同时maxStatementsPerConnection的配置无效。
+               由于PreparedStatement属于单个Connection,所以这个数量应该根据应用中平均连接数乘以每个连接的平均PreparedStatement来计算-->
+        <property name="maxStatements" value="${c3p0.maxStatements}"/>
+
+    </bean>
+
+
+    <!-- 获取sqlSessionFactory-->
+    <bean id="sqlSessionFactory"  class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--配置数据源-->
+        <property name="dataSource" ref="dataSource"/>
+        <!-- 给整个包下的所有文件起别名，就是类名的首字母小写 com.xgf.bean.Person 简化成 person-->
+        <property name="typeAliasesPackage" value="com.xgf.bean"/>
+    </bean>
+    <!-- 配置映射文件扫描器  ： IPersonDao.xml和IPersonDao.java-->
+    <bean id="mapperScanner" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!-- 扫描dao接口和映射xml编译后的类路径 -->
+        <property name="basePackage" value="com.xgf.dao"/>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+    </bean>
+
+    <!--配置Spring框架的 声明式事务管理-->
+    <!--配置事务管理器  DataSourceTransactionManager是spring给我们的管理事务的对象，
+            这个对象要用到连接池，用完需要将连接放回连接池 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+
+    <!-- 配置通知 -->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <!-- spring提供的tx标签对方法进行分类 -->
+        <tx:attributes>
+            <!-- 方法：所有以find开头的都不进行事务管理（以后查询都以find开头） -->
+            <tx:method name="find*" read-only="true"/>
+            <!-- 其他的都用默认的DEFAULT，进行事务管理
+                    （DEFAULT是默认的事务隔离级别，mysql用什么事务隔离级别我们也用） -->
+            <tx:method name="delete*" isolation="DEFAULT"/>
+            <tx:method name="save*" isolation="DEFAULT"/>
+            <tx:method name="update*" isolation="DEFAULT"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <!-- 配置AOP实现增强，配置aop事务 -->
+    <aop:config>
+        <!-- expression表达式的值，按照你的路径配置
+            * com.xgf.service.impl.*ServiceImpl.*(..))
+                第一个* 是返回值通配符
+                然后是包的路径，*ServiceImpl表示配置的所有满足类名+ServiceImpl后缀的且在com.xgf.service.impl目录下的
+                *(..) ： *表示所有方法 (..)表示匹配所有参数
+        -->
+        <aop:pointcut id="service" expression="execution(* com.xgf.service.impl.*ServiceImpl.*(..))"/>
+        <!-- 切入点 一个增强通知以及一个说明在何处增强的切入点  -->
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="service"/>
+    </aop:config>
+
+
+
+
+
+</beans>

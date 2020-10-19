@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xgf.dao.IDepartmentDao">
+
+    <select id="findAll" resultType="department">
+        select * from department order by did asc;
+    </select>
+
+    <insert id="save" parameterType="department">
+        insert into department values(null,#{dname});
+    </insert>
+
+    <delete id="deleteById" parameterType="int">
+        delete from department where did =#{id};
+    </delete>
+
+
+    <update id="update" parameterType="department">
+        update department set dname = #{dname} where did = #{did};
+    </update>
+
+
+    <select id="findById" parameterType="int" resultType="department">
+        select * from department where did = #{did};
+    </select>
+</mapper>
